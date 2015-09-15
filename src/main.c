@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define NMAX 2000001
+#define NMAX 10000000 // Max is set for output reasons. We display output on 7 characters.
 
 void emptyBuffer() {
     while (getchar() != '\n') ;
