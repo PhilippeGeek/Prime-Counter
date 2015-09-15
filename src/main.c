@@ -25,17 +25,21 @@ void emptyBuffer() {
 }
 
 int isPrime(const unsigned int NUMBER) {
-    if (NUMBER <= 1)
+    if (NUMBER <= 1) // Negatives, 0 and 1 are not prime.
         return 0;
 
-    if (NUMBER == 2)
+    if (NUMBER == 2) // Two is the only even prime number.
         return 1;
 
-    if (NUMBER % 2 == 0)
+    if (NUMBER % 2 == 0) // Others are not prime.
         return 0;
 
     unsigned int i;
     int square = (int) sqrt(NUMBER);
+    /* We already checked 0, 1 and 2.
+     * + When checking if N = a * b, either a or b is lower or equal to sqrt(N).
+     * Checking above sqrt(N) would be useless.
+     */
     for (i = 3; i <= square; ++i) {
         if (NUMBER % i == 0)
             return 0;
