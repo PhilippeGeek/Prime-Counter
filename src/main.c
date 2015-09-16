@@ -80,6 +80,8 @@ int main(int argc, const char *argv[]) {
 
     if (!found) {
         printf("No prime number found under %d (included).", USER_NUMBER);
+    } else {
+        printf("\n%d found under %d (included).", counter, USER_NUMBER);
     }
 
     printf("\n");
