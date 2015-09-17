@@ -27,7 +27,6 @@
 struct threadData {
     unsigned int start;
     unsigned int stop;
-    unsigned int threadNum;
     sem_t sem;
 };
 
@@ -84,7 +83,6 @@ int main(int argc, const char *argv[]) {
     for (i = 0; i < MAX_THREADS; ++i) {
         struct threadData data;
         data.start = start;
-        data.threadNum = i;
         if (i != MAX_THREADS - 1) {
             data.stop = start + (userNumber - start) / 2;
         } else {
@@ -114,7 +112,6 @@ int main(int argc, const char *argv[]) {
 
 void* getInt(void* arg) {
     struct threadData* data = arg;
-    unsigned int threadNum = data->threadNum;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
     sem_post(&data->sem);
