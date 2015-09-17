@@ -94,7 +94,6 @@ int main(int argc, const char *argv[]) {
             }
         }
         sem_init(&data.sem, 0, 0);
-        printf("CREATING THREAD %d - start : %d - stop : %d (%d)\n", i, data.start, data.stop, data.stop - data.start);
         pthread_create(&(threads[i]), NULL, getInt, &data);
         sem_wait(&data.sem);
         start = data.stop + 1;
@@ -105,7 +104,6 @@ int main(int argc, const char *argv[]) {
     for (i = 0; i < MAX_THREADS; ++i) {
         void* res;
         pthread_join(threads[i], &res);
-        printf("res %d : %d\n", i, (int) res);
         total_counter += (int) res;
     }
 
@@ -124,13 +122,11 @@ void* getInt(void* arg) {
     int i;
     int counter = 0;
 
-    printf("INSIDE THREAD %d - start : %d - stop : %d\n", threadNum, start, stop);
     for (i = start; i <= stop; ++i) {
         if (isPrime(i)) {
             ++counter;
         }
     }
 
-    printf("EXITING THREAD %d with %d\n", threadNum, counter);
     pthread_exit((void*) counter);
 }
