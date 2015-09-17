@@ -25,16 +25,16 @@
 #define MAX_THREADS 8
 
 struct threadData {
-    int start;
-    int stop;
-    int threadNum;
+    unsigned int start;
+    unsigned int stop;
+    unsigned int threadNum;
     sem_t sem;
 };
 
 void* getInt(void* userNumber);
 void emptyBuffer();
 int isPrime(const int NUMBER);
-int getNumber(const char* nom);
+unsigned int getNumber(const char* nom);
 
 void emptyBuffer() {
     while (getchar() != '\n') ;
@@ -63,9 +63,9 @@ int isPrime(const int NUMBER) {
     return 1;
 }
 
-int getNumber(const char* nom) {
+unsigned int getNumber(const char* nom) {
     int ok = 0;
-    int n = 0;
+    unsigned int n = 0;
     do {
         printf("Input %s < %d : ", nom, NMAX);
         ok = scanf("%d", &n);
@@ -76,10 +76,10 @@ int getNumber(const char* nom) {
 }
 
 int main(int argc, const char *argv[]) {
-    int userNumber = getNumber("n (max)");
+    unsigned int userNumber = getNumber("n (max)");
     pthread_t threads[MAX_THREADS];
-    int i;
-    int start = 2;
+    unsigned int i;
+    unsigned int start = 2;
 
     for (i = 0; i < MAX_THREADS; ++i) {
         struct threadData data;
@@ -99,12 +99,12 @@ int main(int argc, const char *argv[]) {
         start = data.stop + 1;
     }
 
-    int total_counter = 0;
+    unsigned int total_counter = 0;
 
     for (i = 0; i < MAX_THREADS; ++i) {
         void* res;
         pthread_join(threads[i], &res);
-        total_counter += (int) res;
+        total_counter += (unsigned int) res;
     }
 
     printf("\n%d found under %d (included).\n", total_counter, userNumber);
@@ -114,13 +114,13 @@ int main(int argc, const char *argv[]) {
 
 void* getInt(void* arg) {
     struct threadData* data = arg;
-    int threadNum = data->threadNum;
-    int start = data->start;
-    int stop = data->stop;
+    unsigned int threadNum = data->threadNum;
+    unsigned int start = data->start;
+    unsigned int stop = data->stop;
     sem_post(&data->sem);
 
-    int i;
-    int counter = 0;
+    unsigned int i;
+    unsigned int counter = 0;
 
     for (i = start; i <= stop; ++i) {
         if (isPrime(i)) {
