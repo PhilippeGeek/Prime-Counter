@@ -20,12 +20,14 @@
 #include <stdio.h> // perror(3),printf(3)
 #include <pthread.h> // threads
 #include <semaphore.h>
+#include <sys/time.h>
 
 #define MAX_THREADS 8
 
 struct threadData {
     unsigned int start;
     unsigned int stop;
+    unsigned int threadNum;
     sem_t sem;
 };
 
@@ -74,7 +76,12 @@ unsigned int getNumber(const char* nom) {
 }
 
 int main(int argc, const char *argv[]) {
+    struct timeval beg, end;
+
     unsigned int userNumber = getNumber("n (max)");
+
+    gettimeofday(&beg, NULL);
+
     pthread_t threads[MAX_THREADS];
     unsigned int i;
     unsigned int start = 2;
@@ -83,13 +90,14 @@ int main(int argc, const char *argv[]) {
         struct threadData data;
         data.start = start;
         if (i != MAX_THREADS - 1) {
-            data.stop = start + (userNumber - start) / 2;
+            data.stop = start + (userNumber) / MAX_THREADS;
         } else {
             data.stop = userNumber;
             if (data.start > userNumber) {
                 data.start = userNumber;
             }
         }
+        data.threadNum = i;
         sem_init(&data.sem, 0, 0);
         pthread_create(&(threads[i]), NULL, getInt, &data);
         sem_wait(&data.sem);
@@ -106,6 +114,18 @@ int main(int argc, const char *argv[]) {
 
     printf("\n%d found under %d (included).\n", total_counter, userNumber);
 
+    gettimeofday(&end, NULL);
+
+    unsigned long long beg_millisec =
+            (unsigned long long)(beg.tv_sec) * 1000 +
+            (unsigned long long)(beg.tv_usec) / 1000;
+    unsigned long long end_millisec =
+            (unsigned long long)(end.tv_sec) * 1000 +
+            (unsigned long long)(end.tv_usec) / 1000;
+    double elapsed = ((double) (end_millisec - beg_millisec) / 1000);
+
+    printf("Took %lf seconds\n", elapsed);
+
     return 0;
 }
 
@@ -113,6 +133,7 @@ void* getInt(void* arg) {
     struct threadData* data = arg;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
+    unsigned int threadNum = data->threadNum;
     sem_post(&data->sem);
 
     unsigned int i;
@@ -123,6 +144,6 @@ void* getInt(void* arg) {
             ++counter;
         }
     }
-
+    printf("EXITING THREAD %d - {%d, %d} - %d\n", threadNum, start, stop, stop - start);
     pthread_exit((void*) counter);
 }
