@@ -21,7 +21,6 @@
 #include <pthread.h> // threads
 #include <semaphore.h>
 
-#define NMAX 10000000 // Max is set for output reasons. We display output on 7 characters.
 #define MAX_THREADS 8
 
 struct threadData {
@@ -66,10 +65,10 @@ unsigned int getNumber(const char* nom) {
     int ok = 0;
     unsigned int n = 0;
     do {
-        printf("Input %s < %d : ", nom, NMAX);
+        printf("Input %s > 0 : ", nom);
         ok = scanf("%d", &n);
         emptyBuffer();
-    } while (!ok || n >= NMAX || n < 0);
+    } while (!ok || n < 0);
 
     return n;
 }
