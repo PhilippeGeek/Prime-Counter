@@ -17,19 +17,30 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h> // fork(2),getpid(2)
 #include <stdio.h> // perror(3),printf(3)
-#include <sys/types.h> // getpid(2),wait(2)
-#include <sys/wait.h> // wait(2)
+#include <pthread.h> // threads
+#include <semaphore.h>
 
 #define NMAX 10000000 // Max is set for output reasons. We display output on 7 characters.
+#define MAX_THREADS 8
+
+struct threadData {
+    int start;
+    int stop;
+    int threadNum;
+    sem_t sem;
+};
+
+void* getInt(void* userNumber);
+void emptyBuffer();
+int isPrime(const int NUMBER);
+int getNumber(const char* nom);
 
 void emptyBuffer() {
     while (getchar() != '\n') ;
 }
 
-int isPrime(const unsigned int NUMBER) {
+int isPrime(const int NUMBER) {
     if (NUMBER <= 1) // Negatives, 0 and 1 are not prime.
         return 0;
 
@@ -39,7 +50,7 @@ int isPrime(const unsigned int NUMBER) {
     if (NUMBER % 2 == 0) // Others are not prime.
         return 0;
 
-    unsigned int i;
+    int i;
     int square = (int) sqrt(NUMBER);
     /* We already checked 0, 1 and 2.
      * + When checking if N = a * b, either a or b is lower or equal to sqrt(N).
@@ -65,36 +76,61 @@ int getNumber(const char* nom) {
 }
 
 int main(int argc, const char *argv[]) {
-    const int USER_NUMBER = getNumber("n (max)");
-    int p;
-    pid_t pid = getpid();
-    const int NUMBER_OF_THREADS = 4;
-    unsigned int total_counter = 0;
-    int state = 0;
+    int userNumber = getNumber("n (max)");
+    pthread_t threads[MAX_THREADS];
+    int i;
+    int start = 2;
 
-    // TODO: Do it with threads and not forks
-    for (p = 0; p < NUMBER_OF_THREADS; ++p) {
-        if (pid != 0) {
-            pid = fork();
-            if(pid == 0) {
-                unsigned int i;
-                unsigned int counter = 0;
-                for (i = 2; i <= USER_NUMBER; ++i) {
-                    if (isPrime(i)) {
-                        ++counter;
-                    }
-                }
-                printf("Exiting with state : %d\n", counter);
-                exit(counter);
-            } else {
-                wait(&state);
-                printf("The returned state is : %d\n", state);
-                total_counter += state;
+    for (i = 0; i < MAX_THREADS; ++i) {
+        struct threadData data;
+        data.start = start;
+        data.threadNum = i;
+        if (i != MAX_THREADS - 1) {
+            data.stop = start + (userNumber - start) / 2;
+        } else {
+            data.stop = userNumber;
+            if (data.start > userNumber) {
+                data.start = userNumber;
             }
+        }
+        sem_init(&data.sem, 0, 0);
+        printf("CREATING THREAD %d - start : %d - stop : %d (%d)\n", i, data.start, data.stop, data.stop - data.start);
+        pthread_create(&(threads[i]), NULL, getInt, &data);
+        sem_wait(&data.sem);
+        start = data.stop + 1;
+    }
+
+    int total_counter = 0;
+
+    for (i = 0; i < MAX_THREADS; ++i) {
+        void* res;
+        pthread_join(threads[i], &res);
+        printf("res %d : %d\n", i, (int) res);
+        total_counter += (int) res;
+    }
+
+    printf("\n%d found under %d (included).\n", total_counter, userNumber);
+
+    return 0;
+}
+
+void* getInt(void* arg) {
+    struct threadData* data = arg;
+    int threadNum = data->threadNum;
+    int start = data->start;
+    int stop = data->stop;
+    sem_post(&data->sem);
+
+    int i;
+    int counter = 0;
+
+    printf("INSIDE THREAD %d - start : %d - stop : %d\n", threadNum, start, stop);
+    for (i = start; i <= stop; ++i) {
+        if (isPrime(i)) {
+            ++counter;
         }
     }
 
-    printf("\n%d found under %d (included).\n", total_counter, USER_NUMBER);
-
-    return 0;
+    printf("EXITING THREAD %d with %d\n", threadNum, counter);
+    pthread_exit((void*) counter);
 }
