@@ -15,8 +15,13 @@
    along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h> // fork(2),getpid(2)
+#include <stdio.h> // perror(3),printf(3)
+#include <sys/types.h> // getpid(2),wait(2)
+#include <sys/wait.h> // wait(2)
 
 #define NMAX 10000000 // Max is set for output reasons. We display output on 7 characters.
 
@@ -61,30 +66,35 @@ int getNumber(const char* nom) {
 
 int main(int argc, const char *argv[]) {
     const int USER_NUMBER = getNumber("n (max)");
-    unsigned int found = 0;
-    unsigned int i;
-    unsigned int counter = 0;
-    for (i = 2; i <= USER_NUMBER; ++i) {
-        if (isPrime(i)) {
-            if (!found) {
-                printf("List of prime numbers under %d (included):\n", USER_NUMBER);
+    int p;
+    pid_t pid = getpid();
+    const int NUMBER_OF_THREADS = 4;
+    unsigned int total_counter = 0;
+    int state = 0;
+
+    // TODO: Do it with threads and not forks
+    for (p = 0; p < NUMBER_OF_THREADS; ++p) {
+        if (pid != 0) {
+            pid = fork();
+            if(pid == 0) {
+                unsigned int i;
+                unsigned int counter = 0;
+                for (i = 2; i <= USER_NUMBER; ++i) {
+                    if (isPrime(i)) {
+                        ++counter;
+                    }
+                }
+                printf("Exiting with state : %d\n", counter);
+                exit(counter);
+            } else {
+                wait(&state);
+                printf("The returned state is : %d\n", state);
+                total_counter += state;
             }
-            printf("%7d ", i);
-            if ((counter + 1) % 10 == 0) {
-                printf("\n");
-            }
-            found = 1;
-            ++counter;
         }
     }
 
-    if (!found) {
-        printf("No prime number found under %d (included).", USER_NUMBER);
-    } else {
-        printf("\n%d found under %d (included).", counter, USER_NUMBER);
-    }
-
-    printf("\n");
+    printf("\n%d found under %d (included).\n", total_counter, USER_NUMBER);
 
     return 0;
 }
