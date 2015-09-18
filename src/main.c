@@ -97,7 +97,7 @@ int main(int argc, const char *argv[]) {
         exit(42);
     }
     unsigned int i;
-    unsigned int start = 2;
+    unsigned int start = 0;
     struct threadData* ptr;
     struct threadData* end_ptr = jobs + n;
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
@@ -109,9 +109,13 @@ int main(int argc, const char *argv[]) {
         ptr->stop = stop;
         sem_init(&ptr->sem, 0, 0);
         start = stop + 1;
+        if (start > userNumber) {
+            start = userNumber;
+        }
+        printf("Created task start: %d, stop: %d\n", ptr->start, ptr->stop);
     }
 
-    sem_init(&sem_threads, 0, 8);
+    sem_init(&sem_threads, 0, MAX_THREADS);
     sem_init(&sem_counter, 0, 1);
 
     // ----- Beginning of computing
@@ -121,6 +125,10 @@ int main(int argc, const char *argv[]) {
         sem_wait(&sem_threads);
         pthread_create(&thread, NULL, getInt, ptr);
         sem_wait(&ptr->sem);
+    }
+
+    for (i = 0; i < MAX_THREADS; ++i) {
+        sem_wait(&sem_threads);
     }
 
     // ----- End of computing
@@ -162,7 +170,7 @@ void* getInt(void* arg) {
     total_counter += counter;
     sem_post(&sem_counter);
 
-    printf("EXITING THREAD %d - {%d, %d} - %d\n", threadNum, start, stop, stop - start);
+//    printf("EXITING THREAD %d - {%d, %d} - %d\n", threadNum, start, stop, stop - start);
     sem_post(&sem_threads);
     pthread_exit((void*) counter);
 }
