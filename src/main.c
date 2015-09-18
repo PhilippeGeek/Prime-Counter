@@ -112,7 +112,6 @@ int main(int argc, const char *argv[]) {
         if (start > userNumber) {
             start = userNumber;
         }
-        printf("Created task start: %d, stop: %d\n", ptr->start, ptr->stop);
     }
 
     sem_init(&sem_threads, 0, MAX_THREADS);
