@@ -23,6 +23,7 @@
 #include <sys/time.h>
 
 #define MAX_THREADS 8
+#define CHUNK_SIZE 10000
 
 struct threadData {
     unsigned int start;
@@ -87,8 +88,8 @@ int main(int argc, const char *argv[]) {
 
     gettimeofday(&beg, NULL);
 
-    int n = userNumber / 10000;
-    if (userNumber % 10000 > 0) {
+    int n = userNumber / CHUNK_SIZE;
+    if (userNumber % CHUNK_SIZE > 0) {
         ++n;
     }
     struct threadData* jobs = (struct threadData*) malloc(n * sizeof(struct threadData));
@@ -101,7 +102,7 @@ int main(int argc, const char *argv[]) {
     struct threadData* ptr;
     struct threadData* end_ptr = jobs + n;
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
-        unsigned int stop = start + 10000;
+        unsigned int stop = start + CHUNK_SIZE;
         if (stop > userNumber) {
             stop = userNumber;
         }
