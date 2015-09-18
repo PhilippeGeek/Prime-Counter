@@ -36,7 +36,7 @@ unsigned int total_counter = 0;
 sem_t sem_counter;
 sem_t sem_threads;
 
-void* getInt(void* userNumber);
+void* getPrimeCount(void* arg);
 void emptyBuffer();
 int isPrime(const int NUMBER);
 unsigned int getNumber(const char* nom);
@@ -123,7 +123,7 @@ int main(int argc, const char *argv[]) {
     for (ptr = jobs; ptr < end_ptr; ++ptr) {
         pthread_t thread;
         sem_wait(&sem_threads);
-        pthread_create(&thread, NULL, getInt, ptr);
+        pthread_create(&thread, NULL, getPrimeCount, ptr);
         sem_wait(&ptr->sem);
     }
 
@@ -150,7 +150,7 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-void* getInt(void* arg) {
+void* getPrimeCount(void* arg) {
     struct threadData* data = arg;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
