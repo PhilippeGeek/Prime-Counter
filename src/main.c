@@ -31,6 +31,10 @@ struct threadData {
     sem_t sem;
 };
 
+unsigned int total_counter = 0;
+sem_t sem_counter;
+sem_t sem_threads;
+
 void* getInt(void* userNumber);
 void emptyBuffer();
 int isPrime(const int NUMBER);
@@ -80,37 +84,46 @@ int main(int argc, const char *argv[]) {
 
     unsigned int userNumber = getNumber("n (max)");
 
+
     gettimeofday(&beg, NULL);
 
-    pthread_t threads[MAX_THREADS];
+    int n = userNumber / 10000;
+    if (userNumber % 10000 > 0) {
+        ++n;
+    }
+    struct threadData* jobs = (struct threadData*) malloc(n * sizeof(struct threadData));
+    if (jobs == NULL) {
+        printf("Not enough memory available :)\nBOOOOM.\n");
+        exit(42);
+    }
     unsigned int i;
     unsigned int start = 2;
-
-    for (i = 0; i < MAX_THREADS; ++i) {
-        struct threadData data;
-        data.start = start;
-        if (i != MAX_THREADS - 1) {
-            data.stop = start + (userNumber) / MAX_THREADS;
-        } else {
-            data.stop = userNumber;
-            if (data.start > userNumber) {
-                data.start = userNumber;
-            }
+    struct threadData* ptr;
+    struct threadData* end_ptr = jobs + n;
+    for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
+        unsigned int stop = start + 10000;
+        if (stop > userNumber) {
+            stop = userNumber;
         }
-        data.threadNum = i;
-        sem_init(&data.sem, 0, 0);
-        pthread_create(&(threads[i]), NULL, getInt, &data);
-        sem_wait(&data.sem);
-        start = data.stop + 1;
+        ptr->start = start;
+        ptr->stop = stop;
+        sem_init(&ptr->sem, 0, 0);
+        start = stop + 1;
     }
 
-    unsigned int total_counter = 0;
+    sem_init(&sem_threads, 0, 8);
+    sem_init(&sem_counter, 0, 1);
 
-    for (i = 0; i < MAX_THREADS; ++i) {
-        void* res;
-        pthread_join(threads[i], &res);
-        total_counter += (unsigned int) res;
+    // ----- Beginning of computing
+
+    for (ptr = jobs; ptr < end_ptr; ++ptr) {
+        pthread_t thread;
+        sem_wait(&sem_threads);
+        pthread_create(&thread, NULL, getInt, ptr);
+        sem_wait(&ptr->sem);
     }
+
+    // ----- End of computing
 
     printf("\n%d found under %d (included).\n", total_counter, userNumber);
 
@@ -144,6 +157,12 @@ void* getInt(void* arg) {
             ++counter;
         }
     }
+
+    sem_wait(&sem_counter);
+    total_counter += counter;
+    sem_post(&sem_counter);
+
     printf("EXITING THREAD %d - {%d, %d} - %d\n", threadNum, start, stop, stop - start);
+    sem_post(&sem_threads);
     pthread_exit((void*) counter);
 }
