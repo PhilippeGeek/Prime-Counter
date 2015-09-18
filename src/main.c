@@ -25,26 +25,40 @@
 #define MAX_THREADS 8
 #define CHUNK_SIZE 10000
 
+// Data passed to thread
 struct threadData {
     unsigned int start;
     unsigned int stop;
-    unsigned int threadNum;
     sem_t sem;
 };
 
+/**
+ * Global variables declaration.
+ * They will be used by all threads.
+ */
 unsigned int total_counter = 0;
 sem_t sem_counter;
 sem_t sem_threads;
 
+// Functions declaration
 void* getPrimeCount(void* arg);
 void emptyBuffer();
 int isPrime(const int NUMBER);
 unsigned int getNumber(const char* nom);
 
+/**
+ * Empty buffer.
+ * To be called after trying to get an int.
+ */
 void emptyBuffer() {
     while (getchar() != '\n') ;
 }
 
+/**
+ * Returns 1 if the given number is prime, 0 if not.
+ *
+ * Loops through all numbers from 3 to the integer part of the square root of the number.
+ */
 int isPrime(const int NUMBER) {
     if (NUMBER <= 1) // Negatives, 0 and 1 are not prime.
         return 0;
@@ -68,6 +82,15 @@ int isPrime(const int NUMBER) {
     return 1;
 }
 
+/**
+ * Get the number from the user.
+ * Ensures it will return a positive integer.
+ * Will loop until it gets a correct number from the user.
+ *
+ * 123foo is considered as 123.
+ * foo123 is refused.
+ * <space>123 is considered as 123.
+ */
 unsigned int getNumber(const char* nom) {
     int ok = 0;
     unsigned int n = 0;
@@ -83,20 +106,27 @@ unsigned int getNumber(const char* nom) {
 int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
+    // ----- Getting user number
     unsigned int userNumber = getNumber("n (max)");
 
 
     gettimeofday(&beg, NULL);
 
+
+    // ----- Job count
     int n = userNumber / CHUNK_SIZE;
     if (userNumber % CHUNK_SIZE > 0) {
         ++n;
     }
+
+    // ----- Reserving data for job queue
     struct threadData* jobs = (struct threadData*) malloc(n * sizeof(struct threadData));
     if (jobs == NULL) {
         printf("Not enough memory available :)\nBOOOOM.\n");
         exit(42);
     }
+
+    // ----- Putting data in job queue
     unsigned int i;
     unsigned int start = 0;
     struct threadData* ptr;
@@ -115,11 +145,11 @@ int main(int argc, const char *argv[]) {
         }
     }
 
+    // ----- Semaphores initialization
     sem_init(&sem_threads, 0, MAX_THREADS);
     sem_init(&sem_counter, 0, 1);
 
     // ----- Beginning of computing
-
     for (ptr = jobs; ptr < end_ptr; ++ptr) {
         pthread_t thread;
         sem_wait(&sem_threads);
@@ -130,7 +160,6 @@ int main(int argc, const char *argv[]) {
     for (i = 0; i < MAX_THREADS; ++i) {
         sem_wait(&sem_threads);
     }
-
     // ----- End of computing
 
     printf("\n%d found under %d (included).\n", total_counter, userNumber);
@@ -150,11 +179,15 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
+/**
+ * arg should be an instance of threadData struct.
+ * Counts the number of primes between start and stop.
+ * Increments the total_counter after the end of range.
+ */
 void* getPrimeCount(void* arg) {
     struct threadData* data = arg;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
-    unsigned int threadNum = data->threadNum;
     sem_post(&data->sem);
 
     unsigned int i;
@@ -170,7 +203,6 @@ void* getPrimeCount(void* arg) {
     total_counter += counter;
     sem_post(&sem_counter);
 
-//    printf("EXITING THREAD %d - {%d, %d} - %d\n", threadNum, start, stop, stop - start);
     sem_post(&sem_threads);
     pthread_exit((void*) counter);
 }
