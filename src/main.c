@@ -122,7 +122,7 @@ int main(int argc, const char *argv[]) {
     // ----- Reserving data for job queue
     struct threadData* jobs = (struct threadData*) malloc(n * sizeof(struct threadData));
     if (jobs == NULL) {
-        printf("Not enough memory available :)\nBOOOOM.\n");
+        printf("Not enough memory available.\nBOOOOM :)\n");
         exit(42);
     }
 
