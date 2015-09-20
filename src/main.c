@@ -98,7 +98,7 @@ unsigned int getNumber(const char* nom) {
         printf("Input %s > 0 : ", nom);
         ok = scanf("%d", &n);
         emptyBuffer();
-    } while (!ok || n < 0);
+    } while (!ok);
 
     return n;
 }
@@ -214,7 +214,7 @@ int main(int argc, const char *argv[]) {
  * Increments the total_counter after the end of range.
  */
 void* getPrimeCount(void* arg) {
-    struct threadData* data = arg;
+    struct threadData* data = (struct threadData*) arg;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
     sem_post(data->sem);
