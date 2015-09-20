@@ -233,5 +233,5 @@ void* getPrimeCount(void* arg) {
     sem_post(sem_counter);
 
     sem_post(sem_threads);
-    pthread_exit((void*) counter);
+    pthread_exit(NULL);
 }
