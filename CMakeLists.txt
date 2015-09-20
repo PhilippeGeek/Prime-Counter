@@ -10,12 +10,12 @@ endif(UNIX)
 set(EXECUTABLE_OUTPUT_PATH build/${CMAKE_BUILD_TYPE})
 
 file(
-        GLOB_RECURSE
-        src
-        src/*
+    GLOB_RECURSE
+    src
+    src/*
 )
 
 add_executable(
-        prime.out
-        ${src}
+    prime.out
+    ${src}
 )
