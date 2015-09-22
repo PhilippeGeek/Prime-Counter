@@ -15,5 +15,6 @@ make
 ```
 
 ## Usage
-Just run the file : `./prime.out` (when in the same folder).
+Just run the file : `./prime.out` (when in the same folder).  
+CMake outputs in `./build` folder.
 
