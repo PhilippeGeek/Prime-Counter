@@ -21,6 +21,7 @@
 #include <pthread.h> // threads
 #include <semaphore.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 #define MAX_THREADS 8
 #define CHUNK_SIZE 10000
