@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-
+cmake_minimum_required(VERSION 3.1)
+set(GCC_COVERAGE_COMPILE_FLAGS "-std=c90 -pedantic")
 project(Primes)
 
 if(UNIX)
@@ -19,3 +19,5 @@ add_executable(
     prime.out
     ${src}
 )
+
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
