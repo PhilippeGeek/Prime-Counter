@@ -146,7 +146,7 @@ int main(int argc, const char *argv[]) {
     correctNumberFound = 0;
     if (argc == 3) {
         char *endptr = 0;
-        unsigned int argThreadNumber = (unsigned int) strtol(argv[1], &endptr, 10);
+        unsigned int argThreadNumber = (unsigned int) strtol(argv[2], &endptr, 10);
 
         if (!(*endptr == '\0' && argv[1] != '\0')) {
             fprintf(stderr, "The second argument is not a valid number.\n");
