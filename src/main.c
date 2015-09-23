@@ -99,7 +99,7 @@ int getNumber(const char* nom, int min, int max) {
         checkMax = 0;
     }
     do {
-        if (checkMax == 1) {
+        if (checkMax) {
             printf("Input %d < %s < %d : ", min - 1, nom, max + 1);
         }
         else {
@@ -107,7 +107,7 @@ int getNumber(const char* nom, int min, int max) {
         }
         ok = scanf("%d", &n);
         emptyBuffer();
-    } while (!ok || n < min || (checkMax == 1 && n > max));
+    } while (!ok || n < min || (checkMax && n > max));
 
     return n;
 }
@@ -138,7 +138,7 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    if (correctNumberFound == 0) {
+    if (!correctNumberFound) {
         userNumber = getNumber("n (max)", 1, 0);
     }
 
@@ -157,7 +157,7 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    if (correctNumberFound == 0) {
+    if (!correctNumberFound) {
         numberOfThreads = getNumber("thread number (1 if you don't know what a thread is)", 1, 0);
     }
 
