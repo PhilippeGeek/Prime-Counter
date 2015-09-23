@@ -93,7 +93,7 @@ int main(int argc, const char *argv[]) {
         ++n;
     }
 
-    // ----- Reserving data for job queue
+    // ----- Reserving memory for job queue
     ThreadData* jobs = (ThreadData*) malloc(n * sizeof(ThreadData));
     if (jobs == NULL) {
         printf("Not enough memory available.\nBOOOOM :)\n");
