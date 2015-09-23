@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <semaphore.h>
 #include <pthread.h>
 
-#include "headers/types.h"
+#include "headers/functions.h"
 
 extern int total_counter;
 extern sem_t* sem_counter;

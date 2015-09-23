@@ -24,7 +24,8 @@
 #include <fcntl.h>
 
 #include "headers/functions.h"
-#include "headers/types.h"
+
+#define CHUNK_SIZE 10000
 
 /**
  * Global variables declaration.

@@ -18,6 +18,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _FUNCTIONS_
 #define _FUNCTIONS_
 
+// Data passed to thread
+typedef struct ThreadDataStruct {
+    int start;
+    int stop;
+    sem_t* sem;
+} ThreadData;
+
 // Functions declaration
 void* getPrimeCount(void* arg);
 void emptyBuffer();
