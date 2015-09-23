@@ -17,8 +17,8 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h> // perror(3),printf(3)
-#include <pthread.h> // threads
+#include <stdio.h>
+#include <pthread.h>
 #include <semaphore.h>
 #include <sys/time.h>
 #include <fcntl.h>
