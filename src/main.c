@@ -27,8 +27,8 @@
 
 // Data passed to thread
 struct threadData {
-    unsigned int start;
-    unsigned int stop;
+    int start;
+    int stop;
     sem_t* sem;
 };
 
@@ -36,7 +36,7 @@ struct threadData {
  * Global variables declaration.
  * They will be used by all threads.
  */
-unsigned int total_counter = 0;
+int total_counter = 0;
 sem_t* sem_counter;
 sem_t* sem_threads;
 
@@ -44,7 +44,7 @@ sem_t* sem_threads;
 void* getPrimeCount(void* arg);
 void emptyBuffer();
 int isPrime(const int NUMBER);
-unsigned int getNumber(const char* nom, unsigned int min, unsigned int max);
+int getNumber(const char* nom, int min, int max);
 
 /**
  * Empty buffer.
@@ -91,9 +91,9 @@ int isPrime(const int NUMBER) {
  * foo123 is refused.
  * <space>123 is considered as 123.
  */
-unsigned int getNumber(const char* nom, unsigned int min, unsigned int max) {
+int getNumber(const char* nom, int min, int max) {
     int ok = 0;
-    unsigned int n = 0;
+    int n = 0;
     int checkMax = 1;
     if (max <= min) {
         checkMax = 0;
@@ -123,14 +123,14 @@ int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
     // ----- Getting user number
-    unsigned int userNumber;
+    int userNumber;
     int correctNumberFound = 0;
     if (argc == 2 || argc == 3) {
         char *endptr = 0;
-        unsigned int argUserNumber = (unsigned int) strtol(argv[1], &endptr, 10);
+        int argUserNumber = (int) strtol(argv[1], &endptr, 10);
 
-        if (!(*endptr == '\0' && argv[1] != '\0')) {
-            fprintf(stderr, "The first argument is not a valid number.\n");
+        if (!(*endptr == '\0' && argv[1] != '\0') || argUserNumber < 0) {
+            fprintf(stderr, "The first argument is not a valid positive integer.\n");
         }
         else {
             userNumber = argUserNumber;
@@ -142,14 +142,14 @@ int main(int argc, const char *argv[]) {
         userNumber = getNumber("n (max)", 1, 0);
     }
 
-    unsigned int numberOfThreads;
+    int numberOfThreads;
     correctNumberFound = 0;
     if (argc == 3) {
         char *endptr = 0;
-        unsigned int argThreadNumber = (unsigned int) strtol(argv[2], &endptr, 10);
+        int argThreadNumber = (int) strtol(argv[2], &endptr, 10);
 
-        if (!(*endptr == '\0' && argv[1] != '\0')) {
-            fprintf(stderr, "The second argument is not a valid number.\n");
+        if (!(*endptr == '\0' && argv[1] != '\0') || argThreadNumber < 0) {
+            fprintf(stderr, "The second argument is not a valid positive integer.\n");
         }
         else {
             numberOfThreads = argThreadNumber;
@@ -178,8 +178,8 @@ int main(int argc, const char *argv[]) {
     }
 
     // ----- Putting data in job queue
-    unsigned int i;
-    unsigned int start = 0;
+    int i;
+    int start = 0;
     struct threadData* ptr;
     struct threadData* end_ptr = jobs + n;
 
@@ -202,7 +202,7 @@ int main(int argc, const char *argv[]) {
 
     char* buf = (char*) malloc((prefixCounter + numberSize) * sizeof(char));
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
-        unsigned int stop = start + CHUNK_SIZE;
+        int stop = start + CHUNK_SIZE;
         if (stop > userNumber) {
             stop = userNumber;
         }
@@ -266,12 +266,12 @@ int main(int argc, const char *argv[]) {
  */
 void* getPrimeCount(void* arg) {
     struct threadData* data = (struct threadData*) arg;
-    unsigned int start = data->start;
-    unsigned int stop = data->stop;
+    int start = data->start;
+    int stop = data->stop;
     sem_post(data->sem);
 
-    unsigned int i;
-    unsigned int counter = 0;
+    int i;
+    int counter = 0;
 
     for (i = start; i <= stop; ++i) {
         if (isPrime(i)) {
