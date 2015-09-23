@@ -21,6 +21,7 @@
 #include <pthread.h> // threads
 #include <semaphore.h>
 #include <sys/time.h>
+#include <fcntl.h>
 
 #define MAX_THREADS 8
 #define CHUNK_SIZE 10000
@@ -29,7 +30,7 @@
 struct threadData {
     unsigned int start;
     unsigned int stop;
-    sem_t sem;
+    sem_t* sem;
 };
 
 /**
@@ -37,8 +38,8 @@ struct threadData {
  * They will be used by all threads.
  */
 unsigned int total_counter = 0;
-sem_t sem_counter;
-sem_t sem_threads;
+sem_t* sem_counter;
+sem_t* sem_threads;
 
 // Functions declaration
 void* getPrimeCount(void* arg);
@@ -98,7 +99,7 @@ unsigned int getNumber(const char* nom) {
         printf("Input %s > 0 : ", nom);
         ok = scanf("%d", &n);
         emptyBuffer();
-    } while (!ok || n < 0);
+    } while (!ok);
 
     return n;
 }
@@ -131,6 +132,25 @@ int main(int argc, const char *argv[]) {
     unsigned int start = 0;
     struct threadData* ptr;
     struct threadData* end_ptr = jobs + n;
+
+    // -- Counts how long is the number for allocating space for semaphore name
+    int numberSize = 0;
+    int userNumberBuffer = userNumber;
+    while (userNumberBuffer % 10 > 0 || userNumberBuffer / 10 > 0) {
+        ++numberSize;
+        userNumberBuffer /= 10;
+    }
+
+    // -- Counts how long is the prefix for semaphore name
+    const char* prefix = "/job";
+    int prefixCounter = 0;
+    const char* prefixPtr = prefix;
+    while (*prefixPtr != '\0') {
+        ++prefixCounter;
+        ++prefixPtr;
+    }
+
+    char* buf = (char*) malloc((prefixCounter + numberSize) * sizeof(char));
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
         unsigned int stop = start + CHUNK_SIZE;
         if (stop > userNumber) {
@@ -138,7 +158,9 @@ int main(int argc, const char *argv[]) {
         }
         ptr->start = start;
         ptr->stop = stop;
-        sem_init(&ptr->sem, 0, 0);
+        sprintf(buf, "%s%d", prefix, i);
+        sem_unlink(buf);
+        ptr->sem = sem_open(buf, O_CREAT, 0644, 0);
         start = stop + 1;
         if (start > userNumber) {
             start = userNumber;
@@ -146,20 +168,28 @@ int main(int argc, const char *argv[]) {
     }
 
     // ----- Semaphores initialization
-    sem_init(&sem_threads, 0, MAX_THREADS);
-    sem_init(&sem_counter, 0, 1);
+    sem_unlink("/threads");
+    sem_threads = sem_open("/threads", O_CREAT, 0644, MAX_THREADS);
+    sem_unlink("/counter");
+    sem_counter = sem_open("/counter", O_CREAT, 0644, 1);
 
     // ----- Beginning of computing
     for (ptr = jobs; ptr < end_ptr; ++ptr) {
         pthread_t thread;
-        sem_wait(&sem_threads);
+        sem_wait(sem_threads);
         pthread_create(&thread, NULL, getPrimeCount, ptr);
-        sem_wait(&ptr->sem);
+        sem_wait(ptr->sem);
     }
 
     for (i = 0; i < MAX_THREADS; ++i) {
-        sem_wait(&sem_threads);
+        sem_wait(sem_threads);
     }
+
+    for (ptr = jobs; ptr < end_ptr; ++ptr) {
+        sem_close(ptr->sem);
+    }
+    sem_close(sem_threads);
+    sem_close(sem_counter);
     // ----- End of computing
 
     printf("\n%d found under %d (included).\n", total_counter, userNumber);
@@ -185,10 +215,10 @@ int main(int argc, const char *argv[]) {
  * Increments the total_counter after the end of range.
  */
 void* getPrimeCount(void* arg) {
-    struct threadData* data = arg;
+    struct threadData* data = (struct threadData*) arg;
     unsigned int start = data->start;
     unsigned int stop = data->stop;
-    sem_post(&data->sem);
+    sem_post(data->sem);
 
     unsigned int i;
     unsigned int counter = 0;
@@ -199,10 +229,10 @@ void* getPrimeCount(void* arg) {
         }
     }
 
-    sem_wait(&sem_counter);
+    sem_wait(sem_counter);
     total_counter += counter;
-    sem_post(&sem_counter);
+    sem_post(sem_counter);
 
-    sem_post(&sem_threads);
-    pthread_exit((void*) counter);
+    sem_post(sem_threads);
+    pthread_exit(NULL);
 }
