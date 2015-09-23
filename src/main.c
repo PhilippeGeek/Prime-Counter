@@ -142,7 +142,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // -- Counts how long is the prefix for semaphore name
-    const char* prefix = "/job/";
+    const char* prefix = "/job";
     int prefixCounter = 0;
     const char* prefixPtr = prefix;
     while (*prefixPtr != '\0') {
