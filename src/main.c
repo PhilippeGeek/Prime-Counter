@@ -112,6 +112,13 @@ unsigned int getNumber(const char* nom, unsigned int min, unsigned int max) {
     return n;
 }
 
+/**
+ * Can receive two arguments (positive integer) :
+ * The first will be considered as the max number to look for primes under.
+ * The second will be the number of threads on which to run the computing.
+ *
+ * If they are not provided, they will be asked.
+ */
 int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
