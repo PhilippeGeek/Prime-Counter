@@ -9,8 +9,8 @@ Simply use GCC to compile this one-file program : `gcc -o prime.out src/prime.c`
 
 ### CMake
 You can also use CMake. You need CMake v.2.6 or greater.
-```
-cmake -G 'Unix Makefiles'
+```console
+cmake CMakeLists.txt
 make
 ```
 
