@@ -116,9 +116,43 @@ int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
     // ----- Getting user number
-    unsigned int userNumber = getNumber("n (max)", 1, 0);
-    unsigned int numberOfThreads = getNumber("thread number (1 if you don't know what a thread is)", 1, 0);
+    unsigned int userNumber;
+    int correctNumberFound = 0;
+    if (argc == 2 || argc == 3) {
+        char *endptr = 0;
+        unsigned int argUserNumber = (unsigned int) strtol(argv[1], &endptr, 10);
 
+        if (!(*endptr == '\0' && argv[1] != '\0')) {
+            fprintf(stderr, "The first argument is not a valid number.\n");
+        }
+        else {
+            userNumber = argUserNumber;
+            correctNumberFound = 1;
+        }
+    }
+
+    if (correctNumberFound == 0) {
+        userNumber = getNumber("n (max)", 1, 0);
+    }
+
+    unsigned int numberOfThreads;
+    correctNumberFound = 0;
+    if (argc == 3) {
+        char *endptr = 0;
+        unsigned int argThreadNumber = (unsigned int) strtol(argv[1], &endptr, 10);
+
+        if (!(*endptr == '\0' && argv[1] != '\0')) {
+            fprintf(stderr, "The second argument is not a valid number.\n");
+        }
+        else {
+            numberOfThreads = argThreadNumber;
+            correctNumberFound = 1;
+        }
+    }
+
+    if (correctNumberFound == 0) {
+        numberOfThreads = getNumber("thread number (1 if you don't know what a thread is)", 1, 0);
+    }
 
     gettimeofday(&beg, NULL);
 
@@ -201,7 +235,7 @@ int main(int argc, const char *argv[]) {
     sem_close(sem_counter);
     // ----- End of computing
 
-    printf("\n%d found under %d (included).\n", total_counter, userNumber);
+    printf("\n%d found under %d (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
 
     gettimeofday(&end, NULL);
 
