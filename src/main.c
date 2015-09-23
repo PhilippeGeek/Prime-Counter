@@ -23,7 +23,6 @@
 #include <sys/time.h>
 #include <fcntl.h>
 
-#define MAX_THREADS 8
 #define CHUNK_SIZE 10000
 
 // Data passed to thread
@@ -45,7 +44,7 @@ sem_t* sem_threads;
 void* getPrimeCount(void* arg);
 void emptyBuffer();
 int isPrime(const int NUMBER);
-unsigned int getNumber(const char* nom);
+unsigned int getNumber(const char* nom, unsigned int min, unsigned int max);
 
 /**
  * Empty buffer.
@@ -92,14 +91,23 @@ int isPrime(const int NUMBER) {
  * foo123 is refused.
  * <space>123 is considered as 123.
  */
-unsigned int getNumber(const char* nom) {
+unsigned int getNumber(const char* nom, unsigned int min, unsigned int max) {
     int ok = 0;
     unsigned int n = 0;
+    int checkMax = 1;
+    if (max <= min) {
+        checkMax = 0;
+    }
     do {
-        printf("Input %s > 0 : ", nom);
+        if (checkMax == 1) {
+            printf("Input %d < %s < %d : ", min - 1, nom, max + 1);
+        }
+        else {
+            printf("Input %s > %d : ", nom, min - 1);
+        }
         ok = scanf("%d", &n);
         emptyBuffer();
-    } while (!ok);
+    } while (!ok || n < min || (checkMax == 1 && n > max));
 
     return n;
 }
@@ -108,7 +116,8 @@ int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
     // ----- Getting user number
-    unsigned int userNumber = getNumber("n (max)");
+    unsigned int userNumber = getNumber("n (max)", 1, 0);
+    unsigned int numberOfThreads = getNumber("thread number (1 if you don't know what a thread is)", 1, 0);
 
 
     gettimeofday(&beg, NULL);
@@ -169,7 +178,7 @@ int main(int argc, const char *argv[]) {
 
     // ----- Semaphores initialization
     sem_unlink("/threads");
-    sem_threads = sem_open("/threads", O_CREAT, 0644, MAX_THREADS);
+    sem_threads = sem_open("/threads", O_CREAT, 0644, numberOfThreads);
     sem_unlink("/counter");
     sem_counter = sem_open("/counter", O_CREAT, 0644, 1);
 
@@ -181,7 +190,7 @@ int main(int argc, const char *argv[]) {
         sem_wait(ptr->sem);
     }
 
-    for (i = 0; i < MAX_THREADS; ++i) {
+    for (i = 0; i < numberOfThreads; ++i) {
         sem_wait(sem_threads);
     }
 
