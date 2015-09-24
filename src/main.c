@@ -45,6 +45,11 @@ sem_t* sem_threads = NULL;
 int main(int argc, const char *argv[]) {
     struct timeval beg, end;
 
+    if (argc == 1 || argc == 2) {
+        printf("Possible usage : ./prime.out [<number to search for primes under> [<number of threads>]]\n");
+        printf("The missing values will be asked in the program.\n\n");
+    }
+
     // ----- Getting user number
     int userNumber;
     int correctNumberFound = 0;
