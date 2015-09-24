@@ -86,3 +86,21 @@ run: all
 	@echo Running
 	@echo ===================================
 	@$(EXEC)
+
+help:
+	@echo You can use:
+	@echo make
+	@echo will compile the project
+	@echo and write object files and executable in ./build folder.
+	@echo
+	@echo make run
+	@echo will execute "make" and run the executable
+	@echo
+	@echo make clean
+	@echo will clean the generated files but keep the executable
+	@echo
+	@echo make cleanall
+	@echo will execute "clean" and remove the executable
+	@echo
+	@echo make help
+	@echo will show this help message
