@@ -34,6 +34,8 @@ SOURCE_PATH = src/
 EXEC = $(BUILD_PATH)main.out
 STD = -std=gnu89
 
+OBJECTS = $(BUILD_PATH)main.o $(BUILD_PATH)functions.o
+
 # Conditionnal definition
 # syntax : ifeq ($(VAR),value)
 ifeq ($(DEBUG),yes)
@@ -54,7 +56,7 @@ all: create_build_path $(EXEC)
 # EXEC rule says it has .o files in dependency.
 # make searches for a matching rule, then runs it.
 # $^ is a variable corresponding to all dependencies of the target.
-$(EXEC): $(BUILD_PATH)main.o $(BUILD_PATH)functions.o
+$(EXEC): $(OBJECTS)
 	@$(CC) $^ -o $(EXEC)
 	@echo Generating executable file $@
 	@echo
