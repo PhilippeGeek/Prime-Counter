@@ -20,10 +20,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <semaphore.h>
 
+#define CHUNK_SIZE 10000
+
 // Data passed to thread
 typedef struct ThreadDataStruct {
     long start;
     long stop;
+    long* startInArray;
     sem_t* sem;
 } ThreadData;
 
@@ -32,5 +35,6 @@ void* getPrimeCount(void* arg);
 void emptyBuffer();
 int isPrime(const long NUMBER);
 long getNumber(const char* nom, long min, long max);
+void printLongArray(const long* array, const int size);
 
 #endif

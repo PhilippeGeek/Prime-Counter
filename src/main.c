@@ -25,15 +25,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "headers/functions.h"
 
-#define CHUNK_SIZE 10000
-
 /**
  * Global variables declaration.
  * They will be used by all threads.
  */
 long total_counter = 0;
+long* primesArray = NULL;
 sem_t* sem_counter = NULL;
 sem_t* sem_threads = NULL;
+sem_t* sem_primesArray = NULL;
 
 /**
  * Can receive two arguments (positive integer) :
@@ -98,6 +98,13 @@ int main(int argc, const char *argv[]) {
         ++n;
     }
 
+    // ----- Allocating primes array
+    // Using half of userNumber because even numbers can not be primes.
+    sem_unlink("/primesArray");
+    sem_primesArray = sem_open("/primesArray", O_CREAT, 0644, 1);
+    long primesArraySize = userNumber / 2;
+    primesArray = (long*) malloc(primesArraySize * sizeof(long));
+
     // ----- Reserving memory for job queue
     ThreadData* jobs = (ThreadData*) malloc(n * sizeof(ThreadData));
     if (jobs == NULL) {
@@ -137,6 +144,7 @@ int main(int argc, const char *argv[]) {
         }
         ptr->start = start;
         ptr->stop = stop;
+        ptr->startInArray = primesArray + start / 2;
         sprintf(buf, "%s%ld", prefix, i);
         sem_unlink(buf);
         ptr->sem = sem_open(buf, O_CREAT, 0644, 0);
@@ -174,6 +182,7 @@ int main(int argc, const char *argv[]) {
     // ----- End of computing
 
     printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
+    printLongArray(primesArray, primesArraySize);
 
     gettimeofday(&end, NULL);
 
@@ -186,6 +195,7 @@ int main(int argc, const char *argv[]) {
     double elapsed = ((double) (end_millisec - beg_millisec) / 1000);
 
     printf("Took %lf seconds\n", elapsed);
+    free(primesArray);
 
     return 0;
 }
