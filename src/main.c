@@ -181,8 +181,8 @@ int main(int argc, const char *argv[]) {
     free(jobs);
     // ----- End of computing
 
-    printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
     printLongArray(primesArray, primesArraySize);
+    printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
 
     gettimeofday(&end, NULL);
 
