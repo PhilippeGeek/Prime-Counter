@@ -1,5 +1,5 @@
 # Prime counter
-This prime counter uses multiple threads in parallel to compute the number of primes lower or equal to the number given by the user.
+This prime counter uses multiple threads in parallel to compute and print the number of primes lower or equal to the number given by the user.
 
 It then prints the elapsed time of the computing.
 
