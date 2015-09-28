@@ -16,6 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -23,8 +24,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "headers/functions.h"
 
 extern long total_counter;
+extern long* primesArray;
 extern sem_t* sem_counter;
 extern sem_t* sem_threads;
+extern sem_t* sem_primesArray;
 
 /**
  * Empty buffer.
@@ -101,14 +104,19 @@ void* getPrimeCount(void* arg) {
     ThreadData* data = (ThreadData*) arg;
     long start = data->start;
     long stop = data->stop;
+    long* startInArray = data->startInArray;
     sem_post(data->sem);
+    long primesArrayLocal[CHUNK_SIZE / 2] = {-1};
 
     long i;
-    long counter = 0;
+    int counter = 0;
+    long* primesArrayLocalPtr;
 
-    for (i = start; i <= stop; ++i) {
+    for (i = start, primesArrayLocalPtr = primesArrayLocal; i <= stop; ++i) {
         if (isPrime(i)) {
+            *primesArrayLocalPtr = i;
             ++counter;
+            ++primesArrayLocalPtr;
         }
     }
 
@@ -116,6 +124,49 @@ void* getPrimeCount(void* arg) {
     total_counter += counter;
     sem_post(sem_counter);
 
+    sem_wait(sem_primesArray);
+    long* globalArrayPtr;
+    const long* globalArrayEnd = startInArray + counter;
+    for (globalArrayPtr = startInArray, primesArrayLocalPtr = primesArrayLocal; globalArrayPtr < globalArrayEnd; ++globalArrayPtr, ++primesArrayLocalPtr) {
+        *globalArrayPtr = *primesArrayLocalPtr;
+    }
+    sem_post(sem_primesArray);
+
     sem_post(sem_threads);
     pthread_exit(NULL);
+}
+
+void printLongArray(const long* array, const int size) {
+    const long* arrayPtr;
+    const long* arrayEnd = array + size;
+    int i;
+    for (arrayPtr = array, i = 0; arrayPtr < arrayEnd; ++arrayPtr) {
+        if (*arrayPtr != 0) {
+            if (i == 0) {
+                printf("[%12ld", *arrayPtr);
+            }
+            else {
+                printf(" %12ld", *arrayPtr);
+            }
+            if ((i + 1) % 10 == 0) {
+                printf("\n");
+            }
+            ++i;
+        }
+    }
+    printf("]\n");
+}
+
+int getUserOkay() {
+    int ok = 0;
+    char c = 0;
+    do {
+        ok = scanf("%c", &c);
+        emptyBuffer();
+    } while (!ok);
+
+    if (c == 'y') {
+        return 1;
+    }
+    return 0;
 }
