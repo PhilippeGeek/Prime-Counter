@@ -32,6 +32,7 @@ typedef struct ThreadDataStruct {
 
 // Functions declaration
 void* getPrimeCount(void* arg);
+int getUserOkay();
 void emptyBuffer();
 int isPrime(const long NUMBER);
 long getNumber(const char* nom, long min, long max);

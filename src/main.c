@@ -181,10 +181,13 @@ int main(int argc, const char *argv[]) {
     free(jobs);
     // ----- End of computing
 
-    printLongArray(primesArray, primesArraySize);
-    printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
-
     gettimeofday(&end, NULL);
+
+    printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
+    printf("Do you want to display the primes ? (y/N) ");
+    if (getUserOkay()) {
+        printLongArray(primesArray, primesArraySize);
+    }
 
     unsigned long long beg_millisec =
             (unsigned long long)(beg.tv_sec) * 1000 +

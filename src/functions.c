@@ -156,3 +156,17 @@ void printLongArray(const long* array, const int size) {
     }
     printf("]\n");
 }
+
+int getUserOkay() {
+    int ok = 0;
+    char c = 0;
+    do {
+        ok = scanf("%c", &c);
+        emptyBuffer();
+    } while (!ok);
+
+    if (c == 'y') {
+        return 1;
+    }
+    return 0;
+}
