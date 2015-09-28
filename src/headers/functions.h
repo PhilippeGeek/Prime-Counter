@@ -22,15 +22,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 // Data passed to thread
 typedef struct ThreadDataStruct {
-    int start;
-    int stop;
+    long start;
+    long stop;
     sem_t* sem;
 } ThreadData;
 
 // Functions declaration
 void* getPrimeCount(void* arg);
 void emptyBuffer();
-int isPrime(const int NUMBER);
-int getNumber(const char* nom, int min, int max);
+int isPrime(const long NUMBER);
+long getNumber(const char* nom, long min, long max);
 
 #endif

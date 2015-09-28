@@ -31,7 +31,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
  * Global variables declaration.
  * They will be used by all threads.
  */
-int total_counter = 0;
+long total_counter = 0;
 sem_t* sem_counter = NULL;
 sem_t* sem_threads = NULL;
 
@@ -51,11 +51,11 @@ int main(int argc, const char *argv[]) {
     }
 
     // ----- Getting user number
-    int userNumber;
+    long userNumber;
     int correctNumberFound = 0;
     if (argc == 2 || argc == 3) {
         char *endptr = 0;
-        int argUserNumber = (int) strtol(argv[1], &endptr, 10);
+        long argUserNumber = strtol(argv[1], &endptr, 10);
 
         if (!(*endptr == '\0' && argv[1] != '\0') || argUserNumber < 0) {
             fprintf(stderr, "The first argument is not a valid positive integer.\n");
@@ -93,7 +93,7 @@ int main(int argc, const char *argv[]) {
 
 
     // ----- Job count
-    int n = userNumber / CHUNK_SIZE;
+    long n = userNumber / CHUNK_SIZE;
     if (userNumber % CHUNK_SIZE > 0) {
         ++n;
     }
@@ -107,14 +107,14 @@ int main(int argc, const char *argv[]) {
     }
 
     // ----- Putting data in job queue
-    int i;
-    int start = 0;
+    long i;
+    long start = 0;
     ThreadData* ptr;
     ThreadData* end_ptr = jobs + n;
 
     // -- Counts how long is the number for allocating space for semaphore name
     int numberSize = 0;
-    int userNumberBuffer = userNumber;
+    long userNumberBuffer = userNumber;
     while (userNumberBuffer % 10 > 0 || userNumberBuffer / 10 > 0) {
         ++numberSize;
         userNumberBuffer /= 10;
@@ -131,13 +131,13 @@ int main(int argc, const char *argv[]) {
 
     char* buf = (char*) malloc((prefixCounter + numberSize) * sizeof(char));
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
-        int stop = start + CHUNK_SIZE;
+        long stop = start + CHUNK_SIZE;
         if (stop > userNumber) {
             stop = userNumber;
         }
         ptr->start = start;
         ptr->stop = stop;
-        sprintf(buf, "%s%d", prefix, i);
+        sprintf(buf, "%s%ld", prefix, i);
         sem_unlink(buf);
         ptr->sem = sem_open(buf, O_CREAT, 0644, 0);
         start = stop + 1;
@@ -173,7 +173,7 @@ int main(int argc, const char *argv[]) {
     free(jobs);
     // ----- End of computing
 
-    printf("\n%d found under %d (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
+    printf("\n%ld found under %ld (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
 
     gettimeofday(&end, NULL);
 

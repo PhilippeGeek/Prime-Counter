@@ -22,7 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "headers/functions.h"
 
-extern int total_counter;
+extern long total_counter;
 extern sem_t* sem_counter;
 extern sem_t* sem_threads;
 
@@ -39,7 +39,7 @@ void emptyBuffer() {
  *
  * Loops through all numbers from 3 to the integer part of the square root of the number.
  */
-int isPrime(const int NUMBER) {
+int isPrime(const long NUMBER) {
     if (NUMBER <= 1) // Negatives, 0 and 1 are not prime.
         return 0;
 
@@ -49,8 +49,8 @@ int isPrime(const int NUMBER) {
     if (NUMBER % 2 == 0) // Others are not prime.
         return 0;
 
-    int i;
-    int square = (int) sqrt(NUMBER);
+    long i;
+    long square = (int) sqrt(NUMBER);
     /* We already checked 0, 1 and 2.
      * + When checking if N = a * b, either a or b is lower or equal to sqrt(N).
      * Checking above sqrt(N) would be useless.
@@ -71,21 +71,21 @@ int isPrime(const int NUMBER) {
  * foo123 is refused.
  * <space>123 is considered as 123.
  */
-int getNumber(const char* nom, int min, int max) {
+long getNumber(const char* nom, long min, long max) {
     int ok = 0;
-    int n = 0;
+    long n = 0;
     int checkMax = 1;
     if (max <= min) {
         checkMax = 0;
     }
     do {
         if (checkMax) {
-            printf("Input %d < %s < %d : ", min - 1, nom, max + 1);
+            printf("Input %ld < %s < %ld : ", min - 1, nom, max + 1);
         }
         else {
-            printf("Input %s > %d : ", nom, min - 1);
+            printf("Input %s > %ld : ", nom, min - 1);
         }
-        ok = scanf("%d", &n);
+        ok = scanf("%ld", &n);
         emptyBuffer();
     } while (!ok || n < min || (checkMax && n > max));
 
@@ -99,12 +99,12 @@ int getNumber(const char* nom, int min, int max) {
  */
 void* getPrimeCount(void* arg) {
     ThreadData* data = (ThreadData*) arg;
-    int start = data->start;
-    int stop = data->stop;
+    long start = data->start;
+    long stop = data->stop;
     sem_post(data->sem);
 
-    int i;
-    int counter = 0;
+    long i;
+    long counter = 0;
 
     for (i = start; i <= stop; ++i) {
         if (isPrime(i)) {
