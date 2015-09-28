@@ -102,6 +102,7 @@ int main(int argc, const char *argv[]) {
     ThreadData* jobs = (ThreadData*) malloc(n * sizeof(ThreadData));
     if (jobs == NULL) {
         printf("Not enough memory available.\nBOOOOM :)\n");
+        free(jobs);
         exit(42);
     }
 
@@ -144,6 +145,7 @@ int main(int argc, const char *argv[]) {
             start = userNumber;
         }
     }
+    free(buf);
 
     // ----- Semaphores initialization
     sem_unlink("/threads");
@@ -168,6 +170,7 @@ int main(int argc, const char *argv[]) {
     }
     sem_close(sem_threads);
     sem_close(sem_counter);
+    free(jobs);
     // ----- End of computing
 
     printf("\n%d found under %d (included) with %d threads.\n", total_counter, userNumber, numberOfThreads);
