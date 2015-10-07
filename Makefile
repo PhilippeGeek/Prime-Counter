@@ -33,6 +33,7 @@ BUILD_PATH = build/
 SOURCE_PATH = src/
 EXEC = $(BUILD_PATH)main.out
 STD = -std=gnu11 -pedantic
+CFLAGS += -lm -pthreads
 
 OBJECTS = $(BUILD_PATH)main.o $(BUILD_PATH)functions.o
 
