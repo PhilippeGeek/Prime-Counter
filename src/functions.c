@@ -179,6 +179,6 @@ void printProgress(const double progress, const int barWidth) {
         else if (i == pos) printf(">");
         else printf(" ");
     }
-    printf("] %lg\r", progress * 100.0);
+    printf("] %lg%%   \r", progress * 100.0);
     fflush(stdout);
 }
