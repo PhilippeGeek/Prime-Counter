@@ -158,11 +158,19 @@ int main(int argc, const char *argv[]) {
     sem_counter = sem_open("/counter", O_CREAT, 0644, 1);
 
     // ----- Beginning of computing
+    double progress = 0.0;
     for (ptr = jobs; ptr < end_ptr; ++ptr) {
         pthread_t thread;
         sem_wait(sem_threads);
         pthread_create(&thread, NULL, getPrimeCount, ptr);
         sem_wait(ptr->sem);
+        if (progress > 1) {
+            progress = 1;
+        }
+        else {
+            progress += 1.0 / n;
+        }
+        printProgress(progress, 70);
     }
 
     for (i = 0; i < numberOfThreads; ++i) {

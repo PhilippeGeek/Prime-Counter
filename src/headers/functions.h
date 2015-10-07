@@ -37,5 +37,6 @@ void emptyBuffer();
 int isPrime(const long NUMBER);
 long getNumber(const char* nom, long min, long max);
 void printLongArray(const long* array, const int size);
+void printProgress(const double progress, const int barWidth);
 
 #endif

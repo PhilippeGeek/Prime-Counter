@@ -170,3 +170,15 @@ int getUserOkay() {
     }
     return 0;
 }
+
+void printProgress(const double progress, const int barWidth) {
+    printf("[");
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) printf("=");
+        else if (i == pos) printf(">");
+        else printf(" ");
+    }
+    printf("] %lg\r", progress * 100.0);
+    fflush(stdout);
+}
