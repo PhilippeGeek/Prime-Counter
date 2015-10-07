@@ -33,7 +33,7 @@ BUILD_PATH = build/
 SOURCE_PATH = src/
 EXEC = $(BUILD_PATH)main.out
 STD = -std=gnu11 -pedantic
-CFLAGS += -lm -pthreads
+LIBS = -lm -pthread
 
 OBJECTS = $(BUILD_PATH)main.o $(BUILD_PATH)functions.o
 
@@ -58,7 +58,7 @@ all: create_build_path $(EXEC)
 # make searches for a matching rule, then runs it.
 # $^ is a variable corresponding to all dependencies of the target.
 $(EXEC): $(OBJECTS)
-	@$(CC) $^ -o $(EXEC)
+	@$(CC) $^ -o $(EXEC) $(LIBS)
 	@echo Generating executable file $@
 	@echo
 
