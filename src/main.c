@@ -22,6 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <semaphore.h>
 #include <sys/time.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "headers/functions.h"
 
@@ -129,12 +130,7 @@ int main(int argc, const char *argv[]) {
 
     // -- Counts how long is the prefix for semaphore name
     const char* prefix = "/job";
-    int prefixCounter = 0;
-    const char* prefixPtr = prefix;
-    while (*prefixPtr != '\0') {
-        ++prefixCounter;
-        ++prefixPtr;
-    }
+    int prefixCounter = strlen(prefix);
 
     char* buf = (char*) malloc((prefixCounter + numberSize) * sizeof(char));
     for (ptr = jobs, i = 0; ptr < end_ptr; ++ptr, ++i) {
